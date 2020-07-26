@@ -1,6 +1,12 @@
 <template>
-  <component :is="type" :href="href" :type="submit" :class="['button', size, state, variation]">
-    <slot/>
+  <component
+    :is="type"
+    :href="href"
+    :type="submit"
+    :class="['button', size, state, variation]"
+    @click="$emit('userInput')"
+  >
+    <slot />
   </component>
 </template>
 

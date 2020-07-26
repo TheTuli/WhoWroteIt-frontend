@@ -3,29 +3,55 @@
     <NavBar
       active="Index"
       :navItems="[
-        {name: 'Template', component: 'Index', href: '/#/'},
-        {name: 'Documentation', href: 'http://localhost:6060/'}
+        { name: 'Home', component: 'Index', href: '/#/' },
+        { name: 'Meet the Team!', href: 'http://localhost:6060/' },
       ]"
     />
     <Wrapper>
-      <Heading>Vue Design System</Heading>
+      <Heading>Who wrote this?</Heading>
       <Paragraph>
-        <a href="https://vueds.com">Vue Design System</a>is an open-source tool for building design systems with Vue.js. It provides you and your team a set of organized tools, patterns &amp; practices. It works as the foundation for your application development.
+        <a>Who wrote this?</a> is an online tool for detecting which author(s) does your writing
+        style adhere to. Simply type-in or paste your text in the search bar below and press submit!
       </Paragraph>
+      <Input @change="gotInput($event)" />
+      <Button @userInput="getOutput">Submit</Button>
+      <div :key="render_it">
+        <div v-for="(sim, author, index) in test_output" :key="index">
+          <p class="result">{{ author }}: {{ sim }} %</p>
+        </div>
+      </div>
     </Wrapper>
   </component>
 </template>
 
 <script>
+import Input from "../elements/Input"
+import Button from "../elements/Button"
+import axios from "axios"
+import Wrapper from "../elements/Wrapper"
+import Vue from "vue"
+import ProgressBar from "vue-progressbar-component"
+
+Vue.component("progress-bar", ProgressBar)
+
 /**
  * Shows how to layout and structure a home page.
  */
 export default {
   name: "Index",
+  data() {
+    return {
+      test_input: null,
+      show_result: false,
+      test_output: {},
+      render_it: 0,
+    }
+  },
+  components: { Wrapper, Button, Input },
   status: "deprecated",
   release: "1.0.0",
   metaInfo: {
-    title: "Vue Design System",
+    title: "Who wrote this?",
     htmlAttrs: {
       lang: "en",
     },
@@ -37,6 +63,53 @@ export default {
     type: {
       type: String,
       default: "div",
+    },
+  },
+
+  methods: {
+    gotInput(value) {
+      this.test_input = value
+    },
+
+    async getOutput() {
+      console.log("getOutput Called on " + this.test_input)
+      if (this.test_input == null) {
+        console.log("Empty input")
+      } else {
+        await this.getResultFromServer(this.test_input).then(result => {
+          console.log(result)
+          console.log(Object.keys(result))
+          for (const key of Object.keys(result)) {
+            this.test_output[key] = parseInt(parseFloat(result[key]) * 100)
+          }
+          this.render_it++
+        })
+      }
+    },
+
+    getResultFromServer(user_input) {
+      const data = new FormData()
+      data.append("user_input", user_input)
+
+      return axios
+        .post("http://localhost:5000/input", data, {
+          headers: {
+            "content-type": `multipart/form-data; boundary=${data._boundary}`,
+          },
+        })
+        .then(
+          response => {
+            // success callback
+
+            alert("Uploaded Successfully")
+            return response.data
+          },
+          response => {
+            // error callback
+            alert("Something went wrong")
+            return null
+          }
+        )
     },
   },
 }
@@ -68,15 +141,19 @@ $color-template-link: $color-bleu-de-france;
   @media #{$media-query-l} {
     // This is how you’d use design tokens with media queries
   }
+
   .heading {
     color: $color-template-text;
   }
+
   .paragraph {
     color: $color-template-text;
   }
+
   .text-link {
     color: $color-template-link;
   }
+
   .wrapper {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -86,16 +163,21 @@ $color-template-link: $color-bleu-de-france;
     left: 50%;
     top: 50%;
   }
+
   a {
     font-family: $font-text;
     color: $color-bleu-de-france;
     text-decoration: underline;
   }
+
+  .result {
+    color: $color-white;
+  }
 }
 </style>
 
 <docs>
-  ```jsx
-  <Index />
-  ```
+    ```jsx
+    <Index/>
+    ```
 </docs>

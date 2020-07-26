@@ -116,6 +116,8 @@
     "vue": "^2.5.17",
     "vue-lodash": "^2.0.0",
     "vue-meta": "^1.5.6",
+    "vue-progressbar": "^0.7.5",
+    "vue-progressbar-component": "^1.1.0",
     "vue-router": "^3.0.2",
     "vuex": "^3.0.1",
     "webfontloader": "^1.6.28"
